@@ -1,4 +1,5 @@
 local create_formspec = dofile(minetest.get_modpath("server_logs") .. "/formspec.lua")
+local ie = minetest.request_insecure_environment()
 
 -- Register 'logs' privilege
 minetest.register_privilege("logs", {
@@ -13,16 +14,18 @@ local function show_logs(name, start_line, search_term)
     end
 
     -- get the log file path from the settings, default to /var/log/minetest/minetest.log if it's not set
-    local log_file_path = minetest.settings:get("server_logs.log_file") or "/var/log/minetest/minetest.log"
+    local log_file_path = minetest.settings:get("server_logs.log_file")
 
     local f
     local content = ""
     if search_term then
         -- shell escape the search term to prevent injection attacks
         search_term = search_term:gsub('([%(%)%.%%%+%-%*%?%[%^%$])', '%%%1')
-        f = io.popen("grep " .. search_term .. " " .. log_file_path)
+        f = ie.io.popen("grep " .. search_term .. " " .. log_file_path)
     else
-        f = io.popen("tail -n +" .. start_line .. " " .. log_file_path)
+        f = ie.io.popen("tail -n +" .. start_line .. " " .. log_file_path)
+        minetest.log(start_line)
+        minetest.log(log_file_path)
     end
 
     if f then
