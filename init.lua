@@ -1,6 +1,10 @@
 local create_formspec = dofile(minetest.get_modpath("server_logs") .. "/formspec.lua")
 local ie = minetest.request_insecure_environment()
 
+if not ie then
+  error("Please add server_logs to trusted_mods in your minetest.conf file for it to work")
+end
+
 -- Register 'logs' privilege
 minetest.register_privilege("logs", {
     description = "Allows viewing server logs",
@@ -14,7 +18,7 @@ local function show_logs(name, start_line, search_term)
     end
 
     -- get the log file path from the settings, default to /var/log/minetest/minetest.log if it's not set
-    local log_file_path = minetest.settings:get("server_logs.log_file")
+    local log_file_path = minetest.settings:get("server_logs.log_file") or "/var/log/minetest/minetest.log"
 
     local f
     local content = ""
